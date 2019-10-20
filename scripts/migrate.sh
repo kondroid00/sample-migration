@@ -3,12 +3,11 @@
 host=localhost
 port=3306
 execute=false
-test=false
 
 #----------------------------------------------
 #   オプションのチェック
 #----------------------------------------------
-while getopts :h:p:d:f:-: opt; do
+while getopts :h:p:d:f:e:-: opt; do
     case $opt in
         h) host=$OPTARG
             ;;
@@ -18,13 +17,12 @@ while getopts :h:p:d:f:-: opt; do
             ;;
         f) filepath=$OPTARG
             ;;
+        e) env=$OPTARG
+            ;;
         -)
             case "${OPTARG}" in
                 execute)
                     execute=true
-                    ;;
-                test)
-                    test=true
                     ;;
             esac
             ;;
@@ -50,8 +48,8 @@ migration_dir=db/migrations
 list=`find ${migration_dir} -type f -name \*.sql`
 for filepath in ${list} ; do
     database=`basename ${filepath} .sql`
-    if "${test}"; then
-        database=${database}_test
+    if [ -n "${env}" ]; then
+        database=${database}_${env}
     fi
     dry_run
     if "${execute}"; then
