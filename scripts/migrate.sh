@@ -3,6 +3,7 @@
 host=localhost
 port=3306
 execute=false
+test=false
 
 #----------------------------------------------
 #   オプションのチェック
@@ -22,11 +23,13 @@ while getopts :h:p:d:f:-: opt; do
                 execute)
                     execute=true
                     ;;
+                test)
+                    test=true
+                    ;;
             esac
             ;;
     esac
 done
-
 
 #----------------------------------------------
 #   実行関数を定義
@@ -47,6 +50,9 @@ migration_dir=db/migrations
 list=`find ${migration_dir} -type f -name \*.sql`
 for filepath in ${list} ; do
     database=`basename ${filepath} .sql`
+    if "${test}"; then
+        database=${database}_test
+    fi
     dry_run
     if "${execute}"; then
         echo "start migration"
